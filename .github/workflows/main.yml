@@ -1,0 +1,59 @@
+name: Build and Publish
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build and create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup HK
+        uses: BadMagic100/setup-hk@v1
+        with:
+            apiPath: References/
+            dependencyFilePath: ModDependencies.txt
+
+      - name: Setup MSBuild
+        run: |
+          sudo apt-get install -y nuget mono-devel
+
+      - name: Restore packages
+        run: nuget restore FakePeppino.csproj
+
+      - name: Build project
+        run: dotnet build --configuration Release
+
+      - name: Get SHA256 of zipped mod
+        id: get_hash
+        run: echo "::set-output name=hash::$(sha256sum Output/FakePeppino.zip | cut -d ' ' -f 1)"
+
+      - name: Get Assembly version
+        id: get_version
+        run: echo "::set-output name=version::$(cat < Version.txt)"
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: Release v${{ steps.get_version.outputs.version }}
+          body: "SHA256: ${{ steps.get_hash.outputs.hash }}"
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Output/FakePeppino.zip
+          asset_name: FakePeppino.zip
+          asset_content_type: application/zip
