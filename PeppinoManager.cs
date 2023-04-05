@@ -1,19 +1,25 @@
 ﻿using HutongGames.PlayMaker.Actions;
 using Modding;
-using System.Collections;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Audio;
+using Vasi;
 
 namespace FakePeppino
 {
-    [RequireComponent(typeof(Animator))]
+    [RequireComponent(typeof(AudioSource))]
     [RequireComponent(typeof(Collider2D))]
+    [RequireComponent(typeof(EnemyDeathEffectsUninfected))]
+    [RequireComponent(typeof(EnemyDreamnailReaction))]
+    [RequireComponent(typeof(HealthManager))]
+    [RequireComponent(typeof(EnemyHitEffectsUninfected))]
     [RequireComponent(typeof(Rigidbody2D))]
+    [RequireComponent(typeof(SpriteFlash))]
+    [RequireComponent(typeof(tk2dSpriteAnimator))]
     internal class PeppinoManager : MonoBehaviour
     {
-        private Animator _animator;
+        private AudioSource _audioSource;
         private Collider2D _collider;
         private EnemyDeathEffectsUninfected _deathEffects;
         private EnemyDreamnailReaction _dreamReaction;
@@ -21,14 +27,17 @@ namespace FakePeppino
         private EnemyHitEffectsUninfected _hitEffects;
         private ParticleSystem _particles;
         private PlayMakerFSM _control;
+        private PlayMakerFSM _dummySpawner;
         private Rigidbody2D _rigidbody;
         private SpriteFlash _spriteFlash;
+        private tk2dSpriteAnimator _animator;
 
         private void Awake()
         {
             _control = gameObject.LocateMyFSM("Control");
+            _dummySpawner = gameObject.LocateMyFSM("Dummy Spawner");
 
-            _animator = GetComponent<Animator>();
+            _audioSource = GetComponent<AudioSource>();
             _collider = GetComponent<Collider2D>();
             _deathEffects = GetComponent<EnemyDeathEffectsUninfected>();
             _dreamReaction = GetComponent<EnemyDreamnailReaction>();
@@ -37,39 +46,64 @@ namespace FakePeppino
             _particles = GetComponentInChildren<ParticleSystem>();
             _rigidbody = GetComponent<Rigidbody2D>();
             _spriteFlash = GetComponent<SpriteFlash>();
-
-            _healthManager.hp = 500;
-            _healthManager.hasSpecialDeath = true;
+            _animator = GetComponent<tk2dSpriteAnimator>();
+            
             _healthManager.OnDeath += OnDeath;
 
             CopyFields();
         }
 
-        private IEnumerator Start()
+        private void Start()
         {
-            //var audioPlayer = GameManager.instance.transform.Find("GlobalPool/Audio Player Actor(Clone)").gameObject;
-            var audioPlayer = new GameObject("Audio Player Actor");
-            audioPlayer.SetActive(false);
-            var audioSource = audioPlayer.AddComponent<AudioSource>();
-            audioSource.outputAudioMixerGroup =
-                FindObjectsOfType<AudioMixerGroup>().FirstOrDefault(group => group.name == "Actors");
-            audioPlayer.AddComponent<PlayAudioAndRecycle>().audioSource = audioSource;
-            
+            var audioPlayer = GameManager.instance.transform.Find("GlobalPool/Audio Player Actor(Clone)").gameObject;
+            //var audioPlayer = new GameObject("Audio Player Actor");
+            //audioPlayer.SetActive(false);
+            //var audioSource = audioPlayer.AddComponent<AudioSource>();
+            var mixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>()
+                .FirstOrDefault(group => group.name == "Actors" && group.audioMixer.name == "Actors");
+            //audioPlayer.AddComponent<PlayAudioAndRecycle>().audioSource = audioSource;
 
-            foreach (var state in _control.FsmStates)
+            foreach (var fsm in GetComponents<PlayMakerFSM>())
             {
-                foreach (var action in state.Actions)
+                foreach (var state in fsm.FsmStates)
                 {
-                    if (action is AudioPlayerOneShotSingle single)
+                    foreach (var action in state.Actions)
                     {
-                        single.audioPlayer.Value = audioPlayer;
+                        if (action is AudioPlayerOneShotSingle single)
+                        {
+                            single.audioPlayer.Value = audioPlayer;
+                        }
                     }
                 }
             }
-            
-            yield return null;
-        }
 
+            _control.GetState("Vulnerable").GetAction<SpawnObjectFromGlobalPool>().gameObject.Value =
+                _control.GetState("Stunned").GetAction<SpawnObjectFromGlobalPool>().gameObject.Value =
+                    GameManager.instance.transform.Find("GlobalPool/Stun Effect(Clone)").gameObject;
+            
+            var dummy = _dummySpawner.GetState("Spawn").GetAction<CreateObject>().gameObject.Value;
+            var dummyMaterial = dummy.GetComponent<MeshRenderer>().material;
+            var materialClone = Instantiate(dummyMaterial);
+            materialClone.SetColor("_ReplacementColor", new Color(0.75f, 0.75f, 0.75f));
+            _dummySpawner.GetState("Spawn").GetAction<CreateObject>().gameObject.Value.GetComponent<MeshRenderer>()
+                .material = materialClone;
+            /*audioSource.outputAudioMixerGroup = */_audioSource.outputAudioMixerGroup =
+                dummy.GetComponent<AudioSource>().outputAudioMixerGroup = mixerGroup;
+            foreach (var fsm in dummy.GetComponents<PlayMakerFSM>())
+            {
+                foreach (var state in fsm.FsmStates)
+                {
+                    foreach (var action in state.Actions)
+                    {
+                        if (action is AudioPlayerOneShotSingle single)
+                        {
+                            single.audioPlayer.Value = audioPlayer;
+                        }
+                    }
+                }
+            }
+        }
+        
         private void CopyFields()
         {
             var @ref = FakePeppino.Instance.GameObjects["Reference"];
@@ -91,7 +125,7 @@ namespace FakePeppino
             hitEffects.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public).ToList()
                 .ForEach(fi => fi.SetValue(_hitEffects, fi.GetValue(hitEffects)));
         }
-
+        
         private void OnDeath()
         {
             

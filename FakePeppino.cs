@@ -148,14 +148,6 @@ namespace FakePeppino
                         var bundle = AssetBundle.LoadFromStream(stream);
                         Bundles.Add(bundle.name, bundle);
                     }
-                    else if (resourceName.Contains("GG_Statue_AspidQueen"))
-                    {
-                        var buffer = new byte[stream.Length];
-                        stream.Read(buffer, 0, buffer.Length);
-                        var statueTex = new Texture2D(2, 2);
-                        statueTex.LoadImage(buffer); 
-                        // Textures.Add("GG_Statue_AspidQueen", statueTex);
-                    }
 
                     stream.Dispose();
                 }
