@@ -13,17 +13,13 @@ namespace FakePeppino
     internal class FakePeppino : Mod, ILocalSettings<LocalSettings>
     {
         internal static FakePeppino Instance { get; private set; }
-
-        public Dictionary<string, AudioClip> AudioClips { get; private set; } = new();
-        public Dictionary<string, AssetBundle> Bundles { get; private set; } = new();
-        public Dictionary<string, GameObject> GameObjects { get; private set; } = new();
-
-        private Material _blurMat;
+        
+        public Dictionary<string, AssetBundle> Bundles { get; } = new();
+        public Dictionary<string, GameObject> GameObjects { get; } = new();
 
         private Dictionary<string, (string, string)> _preloads = new()
         {
             ["Boss Scene Controller"] = ("GG_Hornet_1", "Boss Scene Controller"),
-            ["Godseeker"] = ("GG_Hornet_1", "Boss Holder/Godseeker Crowd"),
             ["Reference"] = ("GG_Hornet_1", "Boss Holder/Hornet Boss 1"),
         };
 
@@ -49,7 +45,6 @@ namespace FakePeppino
             }
 
             Unload();
-            _blurMat = Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(mat => mat.shader.name.Contains("UI/Blur/UIBlur"));
             LoadAssets();
 
             ModHooks.AfterSavegameLoadHook += AfterSaveGameLoad;
@@ -57,10 +52,6 @@ namespace FakePeppino
             ModHooks.LanguageGetHook += LangGet;
             ModHooks.NewGameHook += AddComponent;
             ModHooks.SetPlayerVariableHook += SetVariableHook;
-
-            On.BlurPlane.Awake += OnBlurPlaneAwake;
-            On.SceneManager.Start += OnSceneManagerStart;
-            On.tk2dTileMap.Awake += OnTileMapAwake;
         }
 
         private void AfterSaveGameLoad(SaveGameData data) => AddComponent();
@@ -109,31 +100,6 @@ namespace FakePeppino
             return obj;
         }
 
-
-        private void OnBlurPlaneAwake(On.BlurPlane.orig_Awake orig, BlurPlane self)
-        {
-            orig(self);
-
-            if (self.OriginalMaterial.shader.name == "UI/Default")
-            {
-                self.SetPlaneMaterial(_blurMat);
-            }
-        }
-
-        private void OnSceneManagerStart(On.SceneManager.orig_Start orig, SceneManager self)
-        {
-            orig(self);
-
-            self.tag = "SceneManager";
-        }
-
-        private void OnTileMapAwake(On.tk2dTileMap.orig_Awake orig, tk2dTileMap self)
-        {
-            orig(self);
-
-            self.tag = "TileMap";
-        }
-
         private void LoadAssets()
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -175,11 +141,7 @@ namespace FakePeppino
             ModHooks.LanguageGetHook -= LangGet;
             ModHooks.SetPlayerVariableHook -= SetVariableHook;
             ModHooks.NewGameHook -= AddComponent;
-
-            On.BlurPlane.Awake -= OnBlurPlaneAwake;
-            On.SceneManager.Start -= OnSceneManagerStart;
-            On.tk2dTileMap.Awake -= OnTileMapAwake;
-
+            
             var statueCreator = GameManager.instance?.gameObject.GetComponent<StatueCreator>();
             if (statueCreator == null)
             {
