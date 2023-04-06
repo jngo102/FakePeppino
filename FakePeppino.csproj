@@ -8,7 +8,7 @@
     <Product>FakePeppino</Product>
     <Description>Fake Peppino boss fight mod.</Description>
     <Copyright>Copyright © 2023 jngo102</Copyright>
-    <AssemblyVersion>0.0.1.0</AssemblyVersion>
+    <AssemblyVersion>0.0.2.0</AssemblyVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -24,8 +24,6 @@
     <LocalRefs>$(MSBuildProgramFiles32)/Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed</LocalRefs>
     <!-- Path to Mods folder -->
     <ModsPath>$(LocalRefs)/Mods</ModsPath>
-    <!-- The folder that exports will be generated in -->
-    <ExportDir>Output</ExportDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -43,7 +41,7 @@
     <RemoveDir Condition="Exists('$(ExportDir)')" Directories="$(ExportDir)" />
     <MakeDir Directories="$(ExportDir)" />
     <MakeDir Directories="$(ExportDir)/zip" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExportDir)" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb;ReadMe.md" DestinationFolder="$(ExportDir)/zip" />
     <ZipDirectory SourceDirectory="$(ExportDir)/zip" DestinationFile="$(ExportDir)/$(TargetName).zip" />
     <RemoveDir Directories="$(ExportDir)/zip" />
     <PropertyGroup>

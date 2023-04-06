@@ -448,6 +448,7 @@ Desktop.ini
 .vscode/
 Output/
 References/
+Version.txt
 *.sln
 Assets/Assets*
 *.manifest
