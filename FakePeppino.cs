@@ -136,7 +136,6 @@ namespace FakePeppino
             var controller = bsc.GetComponent<BossSceneController>();
             controller.DreamReturnEvent = "DREAM RETURN";
             controller.bossesDeadWaitTime = 9;
-            controller.DreamReturnEvent = "DREAM RETURN";
             GameObject transition = UObject.Instantiate(controller.transitionPrefab);
             PlayMakerFSM transitionsFSM = transition.LocateMyFSM("Transitions");
             transitionsFSM.SetState("Out Statue");

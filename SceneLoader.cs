@@ -1,8 +1,7 @@
-﻿using HutongGames.PlayMaker.Actions;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 using UnityStandardAssets.ImageEffects;
-using Vasi;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace FakePeppino
@@ -58,12 +57,17 @@ namespace FakePeppino
                 StatueCreator.BossLevel = SceneController.BossLevel;
             }
 
-            if (nextScene.name == "FakePeppino" || nextScene.name == "Victory")
+            if (nextScene.name == "FakePeppino" || nextScene.name == "Chase" || nextScene.name == "Victory")
             {
                 var rootGOs = nextScene.GetRootGameObjects();
                 foreach (var go in rootGOs)
                 {
                     foreach (var sprRend in go.GetComponentsInChildren<SpriteRenderer>(true))
+                    {
+                        sprRend.material.shader = Shader.Find("Sprites/Default");
+                    }
+
+                    foreach (var sprRend in go.GetComponentsInChildren<TilemapRenderer>(true))
                     {
                         sprRend.material.shader = Shader.Find("Sprites/Default");
                     }
