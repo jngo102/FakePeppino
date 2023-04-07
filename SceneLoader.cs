@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using HutongGames.PlayMaker.Actions;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityStandardAssets.ImageEffects;
+using Vasi;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace FakePeppino
@@ -27,6 +29,10 @@ namespace FakePeppino
             if (gm.sceneName == "FakePeppino")
             {
                 HeroController.instance.transform.SetPosition2D(14, 4);
+            }
+
+            if (gm.sceneName == "FakePeppino" || gm.sceneName == "Chase" || gm.sceneName == "Victory")
+            {
                 HeroController.instance.transform.Find("Vignette").gameObject.SetActive(false);
                 GameCameras.instance.tk2dCam.GetComponent<BloomOptimized>().enabled = false;
             }
@@ -34,18 +40,26 @@ namespace FakePeppino
             {
                 HeroController.instance.transform.Find("Vignette").gameObject.SetActive(true);
                 GameCameras.instance.tk2dCam.GetComponent<BloomOptimized>().enabled = true;
-            }
+            }   
         }
 
         private void OnSceneChange(Scene prevScene, Scene nextScene)
         {
             if (nextScene.name == "FakePeppino")
             {
+                if (SceneController != null)
+                {
+                    Destroy(SceneController.gameObject);
+                }
+                
                 var bsc = Instantiate(FakePeppino.Instance.GameObjects["Boss Scene Controller"]);
                 bsc.SetActive(true);
                 SceneController = bsc.GetComponent<BossSceneController>();
                 StatueCreator.BossLevel = SceneController.BossLevel;
+            }
 
+            if (nextScene.name == "FakePeppino" || nextScene.name == "Victory")
+            {
                 var rootGOs = nextScene.GetRootGameObjects();
                 foreach (var go in rootGOs)
                 {
@@ -53,12 +67,12 @@ namespace FakePeppino
                     {
                         sprRend.material.shader = Shader.Find("Sprites/Default");
                     }
-
-                    foreach (var meshRend in go.GetComponentsInChildren<MeshRenderer>(true))
-                    {
-                        meshRend.material.shader = Shader.Find(meshRend.GetComponent<BlurPlane>() ? "UI/Blur/UIBlur" : "Sprites/Default-ColorFlash");
-                    }
                 }
+            }
+
+            if (nextScene.name == "Victory")
+            {
+                StartCoroutine(FakePeppino.Instance.DreamReturnDelayed(9));
             }
         }
 

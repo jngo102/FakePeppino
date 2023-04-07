@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using HutongGames.PlayMaker.Actions;
 using UnityEngine;
+using Vasi;
 using UObject = UnityEngine.Object;
 
 namespace FakePeppino
@@ -108,30 +110,38 @@ namespace FakePeppino
                 using (Stream stream = assembly.GetManifestResourceStream(resourceName))
                 {
                     if (stream == null) continue;
-
-                    if (resourceName.Contains("fakepeppino"))
-                    {
-                        var bundle = AssetBundle.LoadFromStream(stream);
-                        Bundles.Add(bundle.name, bundle);
-                    }
+                    
+                    var bundle = AssetBundle.LoadFromStream(stream);
+                    Bundles.Add(bundle.name, bundle);
 
                     stream.Dispose();
                 }
             }
         }
 
-        internal IEnumerator DreamReturnDelayed()
+        internal IEnumerator DreamReturnDelayed(float delay)
         {
             StatueCreator.WonFight = true;
 
-            yield return new WaitForSeconds(6);
+            yield return new WaitForSeconds(delay);
 
-            var bsc = SceneLoader.SceneController.GetComponent<BossSceneController>();
-            GameObject transition = UObject.Instantiate(bsc.transitionPrefab);
+            var bsc = UObject.Instantiate(GameObjects["Boss Scene Controller"]);
+            UObject.Destroy(bsc.Child("Dream Entry"));
+            bsc.SetActive(true);
+            var dreamReturn = bsc.LocateMyFSM("Dream Return");
+            dreamReturn.GetState("Statue").GetAction<GetPlayerDataString>().storeValue = "GG_Workshop";
+            dreamReturn.Fsm.GetFsmString("Entry Gate").Value =
+                "door_dreamReturnGG_GG_Statue_Mage_Knight_GG_Statue_Mage_Knight(Clone)";
+            dreamReturn.Fsm.GetFsmString("Return Scene").Value = "GG_Workshop";
+            var controller = bsc.GetComponent<BossSceneController>();
+            controller.DreamReturnEvent = "DREAM RETURN";
+            controller.bossesDeadWaitTime = 9;
+            controller.DreamReturnEvent = "DREAM RETURN";
+            GameObject transition = UObject.Instantiate(controller.transitionPrefab);
             PlayMakerFSM transitionsFSM = transition.LocateMyFSM("Transitions");
             transitionsFSM.SetState("Out Statue");
             yield return new WaitForSeconds(1);
-            bsc.DoDreamReturn();
+            controller.DoDreamReturn();
         }
 
         private void Unload()

@@ -5,7 +5,7 @@ namespace FakePeppino
 {
     internal class Silhouette : MonoBehaviour
     {
-        private const float FadeTime = 2;
+        private const float FadeTime = 1;
 
         private IEnumerator Start()
         {

@@ -34,6 +34,7 @@ namespace FakePeppino
             scene.sceneName = "FakePeppino";
 
             var bs = statue.GetComponent<BossStatue>();
+            bs.name = "GG_Statue_Fake_Peppino";
             bs.bossScene = scene;
             bs.statueStatePD = "statueStatePep";
             bs.SetPlaquesVisible(bs.StatueState.isUnlocked && bs.StatueState.hasBeenSeen);
