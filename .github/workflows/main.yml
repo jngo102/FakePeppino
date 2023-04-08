@@ -72,9 +72,10 @@ jobs:
         id: get_version
         run: echo "version=$(cat < Version.txt)" > $GITHUB_OUTPUT
 
-      - name: Cache artifact
-        uses: actions/cache@v3
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
         with:
+          name: FakePeppino_${{ matrix.os.suffix }}
           path: Output/FakePeppino_${{ matrix.os.suffix }}.zip
   create_release:
     needs: build
