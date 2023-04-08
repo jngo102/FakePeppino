@@ -333,9 +333,15 @@
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="ReadMe.md" />
-    <EmbeddedResource Include="Assets\chase" />
-    <EmbeddedResource Include="Assets\fakepeppino" />
-    <EmbeddedResource Include="Assets\victory" />
+    <EmbeddedResource Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="Assets\chaselin" />
+    <EmbeddedResource Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="Assets\fakepeppinolin" />
+    <EmbeddedResource Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="Assets\victorylin" />
+    <EmbeddedResource Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="Assets\chasemac" />
+    <EmbeddedResource Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="Assets\fakepeppinomac" />
+    <EmbeddedResource Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="Assets\victorymac" />
+    <EmbeddedResource Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="Assets\chasewin" />
+    <EmbeddedResource Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="Assets\fakepeppinowin" />
+    <EmbeddedResource Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="Assets\victorywin" />
     <EmbeddedResource Include="Assets\GG_Statue_FakePeppino.png" />
   </ItemGroup>
 </Project>
