@@ -55,7 +55,7 @@ jobs:
         run: echo "::set-output name=hash::$(sha256sum Output/FakePeppino.zip | cut -d ' ' -f 1)"
     
       - name: Get SHA256 of zipped mod OSX
-        if: matrix.os.suffix == "OSX"
+        if: matrix.os.suffix == 'OSX'
         id: get_hash_osx
         run: echo "::set-output name=hash::$(shasum -a 256 Output/FakePeppino.zip | cut -d ' ' -f 1)"
 
