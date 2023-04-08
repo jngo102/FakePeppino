@@ -336,5 +336,6 @@
     <EmbeddedResource Include="Assets\chase" />
     <EmbeddedResource Include="Assets\fakepeppino" />
     <EmbeddedResource Include="Assets\victory" />
+    <EmbeddedResource Include="Assets\GG_Statue_FakePeppino.png" />
   </ItemGroup>
 </Project>

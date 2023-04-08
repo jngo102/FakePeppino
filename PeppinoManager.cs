@@ -39,7 +39,7 @@ namespace FakePeppino
         
         private void CopyFields()
         {
-            var @ref = FakePeppino.Instance.GameObjects["Reference"];
+            var @ref = FakePeppino.GameObjects["Reference"];
             
             var deathEffects = @ref.GetComponent<EnemyDeathEffectsUninfected>();
             deathEffects.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public).ToList()
@@ -80,6 +80,13 @@ namespace FakePeppino
                             if (single.audioPlayer.Value == null)
                             {
                                 single.audioPlayer.Value = _audioPlayer;
+                            }
+                        }
+                        else if (action is AudioPlayerOneShot shot)
+                        {
+                            if (shot.audioPlayer.Value == null)
+                            {
+                                shot.audioPlayer.Value = _audioPlayer;
                             }
                         }
                     }

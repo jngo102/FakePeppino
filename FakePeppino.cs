@@ -17,7 +17,8 @@ namespace FakePeppino
         internal static FakePeppino Instance { get; private set; }
         
         public Dictionary<string, AssetBundle> Bundles { get; } = new();
-        public Dictionary<string, GameObject> GameObjects { get; } = new();
+        public static Dictionary<string, GameObject> GameObjects { get; } = new();
+        public static Texture2D StatueTex;
 
         private Dictionary<string, (string, string)> _preloads = new()
         {
@@ -110,7 +111,17 @@ namespace FakePeppino
                 using (Stream stream = assembly.GetManifestResourceStream(resourceName))
                 {
                     if (stream == null) continue;
-                    
+
+                    if (resourceName.Contains("GG_Statue_FakePeppino"))
+                    {
+                        var buffer = new byte[stream.Length];
+                        stream.Read(buffer, 0, buffer.Length);
+                        var statueTex = new Texture2D(2, 2);
+                        statueTex.LoadImage(buffer);
+                        StatueTex = statueTex;
+                        continue;
+                    }
+
                     var bundle = AssetBundle.LoadFromStream(stream);
                     Bundles.Add(bundle.name, bundle);
 

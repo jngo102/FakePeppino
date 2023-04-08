@@ -24,7 +24,7 @@ namespace FakePeppino
         private void CreateStatue()
         {
             GameObject statue = Instantiate(GameObject.Find("GG_Statue_Mage_Knight"));
-#if DEBUG
+#if DEBUG 
             statue.transform.position += Vector3.left * 22;
 #else
             statue.transform.position += Vector3.left * 8;
@@ -46,12 +46,12 @@ namespace FakePeppino
 
             GameObject appearance = statue.transform.Find("Base").Find("Statue").gameObject;
             appearance.SetActive(true);
-            // var statueTex = AspidQueen.Instance.Textures["GG_Statue_AspidQueen"];
-            //SpriteRenderer sr = appearance.transform.Find("GG_statues_0006_5").GetComponent<SpriteRenderer>();
-            //sr.enabled = true;
-            //sr.sprite = Sprite.Create(statueTex, new Rect(0, 0, statueTex.width, statueTex.height), new Vector2(0.5f, 0.5f));
-            //sr.transform.position += Vector3.up * 2.5f;
-            //sr.transform.localScale *= 1.5f;
+             var statueTex = FakePeppino.StatueTex;
+            SpriteRenderer sr = appearance.transform.Find("GG_statues_0006_5").GetComponent<SpriteRenderer>();
+            sr.enabled = true;
+            sr.sprite = Sprite.Create(statueTex, new Rect(0, 0, statueTex.width, statueTex.height), new Vector2(0.5f, 0.5f));
+            sr.transform.position += Vector3.left * 0.5f;
+            sr.transform.localScale *= 2;
 
             GameObject inspect = statue.transform.Find("Inspect").gameObject;
             var tmp = inspect.transform.Find("Prompt Marker").position;
