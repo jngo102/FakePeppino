@@ -12,7 +12,7 @@ jobs:
              { version: windows-latest, suffix: Windows }, 
              { version: macos-latest, suffix: OSX }]
     name: Build and create release
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
