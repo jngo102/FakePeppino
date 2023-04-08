@@ -42,7 +42,9 @@
     <MakeDir Directories="$(ExportDir)" />
     <MakeDir Directories="$(ExportDir)/zip" />
     <Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb;ReadMe.md" DestinationFolder="$(ExportDir)/zip" />
-    <ZipDirectory SourceDirectory="$(ExportDir)/zip" DestinationFile="$(ExportDir)/$(TargetName).zip" />
+    <ZipDirectory Condition="$([MSBuild]::IsOSPlatform('Linux'))" SourceDirectory="$(ExportDir)/zip" DestinationFile="$(ExportDir)/$(TargetName)_Linux.zip" />
+    <ZipDirectory Condition="$([MSBuild]::IsOSPlatform('OSX'))" SourceDirectory="$(ExportDir)/zip" DestinationFile="$(ExportDir)/$(TargetName)_OSX.zip" />
+    <ZipDirectory Condition="$([MSBuild]::IsOSPlatform('Windows'))" SourceDirectory="$(ExportDir)/zip" DestinationFile="$(ExportDir)/$(TargetName)_Windows.zip" />
     <RemoveDir Directories="$(ExportDir)/zip" />
     <PropertyGroup>
       <OutputFileString>$(AssemblyVersion)</OutputFileString>
