@@ -23,8 +23,20 @@ jobs:
             apiPath: References/
             dependencyFilePath: ModDependencies.txt
 
-      - name: Setup MSBuild
+      - name: Setup MSBuild Linux
+        if: ${{ matrix.os.suffix }} == "Linux"
+        run: |
+          sudo apt-get install -y nuget mono-devel
+
+      - name: Setup MSBuild Windows
+        if: ${{ matrix.os.suffix }} == "Windows"
         uses: microsoft/setup-msbuild@v1
+
+      - name: Setup MSBuild OSX
+        if: ${{ matrix.os.suffix }} == "OSX"
+        run: |
+          brew install nuget
+          brew install mono
 
       - name: Restore packages
         run: nuget restore FakePeppino.csproj
@@ -41,7 +53,7 @@ jobs:
         run: echo "::set-output name=version::$(cat < Version.txt)"
 
       - name: Create release
-        if: ${{ matrix.os.name }} == "Linux"
+        if: ${{ matrix.os.suffix }} == "Linux"
         id: create_release
         uses: actions/create-release@v1
         env:
