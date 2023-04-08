@@ -5,6 +5,21 @@ on:
     branches: [main]
 
 jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create release
+        if: ${{ matrix.os.suffix }} == "Linux"
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+            tag_name: ${{ steps.get_version.outputs.version }}
+            release_name: Release v${{ steps.get_version.outputs.version }}
+            body: "SHA256: ${{ steps.get_hash.outputs.hash }}"
+            draft: false
+            prerelease: false
   build:
     strategy:
       matrix:
@@ -35,8 +50,8 @@ jobs:
       - name: Setup MSBuild OSX
         if: matrix.os.suffix == 'OSX'
         run: |
-          brew install nuget
-          brew install mono
+          brew install --overwrite nuget
+          brew install --overwrite mono
 
       - name: Restore packages
         run: nuget restore FakePeppino.csproj
@@ -51,19 +66,6 @@ jobs:
       - name: Get Assembly version
         id: get_version
         run: echo "::set-output name=version::$(cat < Version.txt)"
-
-      - name: Create release
-        if: ${{ matrix.os.suffix }} == "Linux"
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.get_version.outputs.version }}
-          release_name: Release v${{ steps.get_version.outputs.version }}
-          body: "SHA256: ${{ steps.get_hash.outputs.hash }}"
-          draft: false
-          prerelease: false
 
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
