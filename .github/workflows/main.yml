@@ -52,12 +52,12 @@ jobs:
       - name: Get SHA256 of zipped mod Linux
         if: matrix.os.suffix == 'Linux'
         id: get_hash_linux
-        run: echo hash=$(sha256sum Output/FakePeppino_Linux.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
+        run: echo "hash=$(sha256sum Output/FakePeppino_Linux.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
     
       - name: Get SHA256 of zipped mod OSX
         if: matrix.os.suffix == 'OSX'
         id: get_hash_osx
-        run: echo hash=$(sha256sum Output/FakePeppino_OSX.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
+        run: echo "hash=$(sha256sum Output/FakePeppino_OSX.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
 
       - name: Get SHA256 of zipped mod Windows
         if: matrix.os.suffix == 'Windows'
@@ -89,7 +89,7 @@ jobs:
           body="$body\nLinux: ${{ needs.build.outputs.HASH_LINUX }}"
           body="$body\nOSX: $${{ needs.build.outputs.HASH_OSX }}"
           body="$body\nWindows: $${{ needs.build.outputs.HASH_WINDOWS }}"
-          echo "::set-output name=body::$body"
+          echo "body=$body" >> $GITHUB_OUTPUT
 
       - name: Create release
         id: create_release
@@ -121,7 +121,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }}
-          asset_path: Output/FakePeppino.zip
-          asset_name: FakePeppino_${{ matrix.os.suffix }}.zip
+          asset_path: Output/FakePeppino_${{ matrix.os }}.zip
+          asset_name: FakePeppino_${{ matrix.os }}.zip
           asset_content_type: application/zip
       
