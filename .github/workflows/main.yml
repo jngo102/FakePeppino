@@ -24,8 +24,7 @@ jobs:
             dependencyFilePath: ModDependencies.txt
 
       - name: Setup MSBuild
-        run: |
-          sudo apt-get install -y nuget mono-devel
+        uses: microsoft/setup-msbuild@v1
 
       - name: Restore packages
         run: nuget restore FakePeppino.csproj
