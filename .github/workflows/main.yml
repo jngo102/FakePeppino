@@ -76,22 +76,12 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Output/FakePeppino_${{ matrix.os.suffix }}.zip
-          key: FakePeppino_${{ matrix.os.suffix }}
   create_release:
     needs: build
     runs-on: ubuntu-latest
     outputs:
      UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
     steps:
-      - name: Generate body
-        id: generate_body
-        run: |
-          export body="##SHA256:"
-          body="$body\nLinux: ${{ needs.build.outputs.HASH_LINUX }}"
-          body="$body\nOSX: $${{ needs.build.outputs.HASH_OSX }}"
-          body="$body\nWindows: $${{ needs.build.outputs.HASH_WINDOWS }}"
-          echo "body=$body" >> $GITHUB_OUTPUT
-
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
@@ -100,7 +90,11 @@ jobs:
         with:
             tag_name: ${{ needs.build.outputs.VERSION }}
             release_name: Release v${{ needs.build.outputs.VERSION }}
-            body: ${{ steps.generate_body.outputs.body }}
+            body: |
+                "SHA256:
+                 Linux: ${{ needs.build.outputs.HASH_LINUX }}
+                 OSX: ${{ needs.build.outputs.HASH_OSX }}
+                 Windows: ${{ needs.build.outputs.HASH_WINDOWS }}"
             draft: false
             prerelease: false
   upload_assets:
