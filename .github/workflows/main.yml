@@ -40,8 +40,8 @@ jobs:
       - name: Setup MSBuild OSX
         if: matrix.os.suffix == 'OSX'
         run: |
-          brew install --overwrite nuget
-          brew install --overwrite mono
+          brew install --overwrite --dry-run nuget
+          brew install --overwrite --dry-run mono
 
       - name: Restore packages
         run: nuget restore FakePeppino.csproj
