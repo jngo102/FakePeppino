@@ -52,19 +52,20 @@ jobs:
       - name: Get SHA256 of zipped mod Linux
         if: matrix.os.suffix == 'Linux'
         id: get_hash_linux
-        run: echo "::set-output name=hash::$(sha256sum Output/FakePeppino.zip | cut -d ' ' -f 1)"
+        run: echo hash=$(sha256sum Output/FakePeppino_Linux.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
     
       - name: Get SHA256 of zipped mod OSX
         if: matrix.os.suffix == 'OSX'
         id: get_hash_osx
-        run: echo "::set-output name=hash::$(shasum -a 256 Output/FakePeppino.zip | cut -d ' ' -f 1)"
+        run: echo hash=$(sha256sum Output/FakePeppino_OSX.zip | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
 
       - name: Get SHA256 of zipped mod Windows
         if: matrix.os.suffix == 'Windows'
         id: get_hash_windows
         run: |
-          certutil -hashfile Output/FakePeppino.zip SHA256 > out.txt
-          echo "::set-output name=hash::$(Get-Content -Path out.txt -TotalCount 2)[-1]"
+          certutil -hashfile Output/FakePeppino_Windows.zip SHA256 > out.txt
+          $hash=(Get-Content -Path out.txt -TotalCount 2)[-1]
+          echo "::set-output name=hash::$hash" >> $GITHUB_OUTPUT
 
       - name: Get Assembly version
         id: get_version
