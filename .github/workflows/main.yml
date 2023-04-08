@@ -8,8 +8,9 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        suffix: [Linux, Windows, OSX]
+        os: [{ version: ubuntu-latest, suffix: Linux }, 
+             { version: windows-latest, suffix: Windows }, 
+             { version: macos-latest, suffix: OSX }]
     name: Build and create release
     runs-on: ${{ matrix.os }}
     steps:
@@ -41,7 +42,7 @@ jobs:
         run: echo "::set-output name=version::$(cat < Version.txt)"
 
       - name: Create release
-        if: ${{ matrix.os }} == "ubuntu-latest"
+        if: ${{ matrix.os.name }} == "Linux"
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -60,5 +61,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: Output/FakePeppino.zip
-          asset_name: FakePeppino_${{ matrix.suffix }}.zip
+          asset_name: FakePeppino_${{ matrix.os.suffix }}.zip
           asset_content_type: application/zip
