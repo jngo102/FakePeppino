@@ -41,7 +41,7 @@ jobs:
         run: echo "::set-output name=version::$(cat < Version.txt)"
 
       - name: Create release
-        if: ${{ matrix.os == "ubuntu-latest" }}
+        if: ${{ matrix.os == ubuntu-latest }}
         id: create_release
         uses: actions/create-release@v1
         env:
