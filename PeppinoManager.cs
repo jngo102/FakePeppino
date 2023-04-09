@@ -29,11 +29,15 @@ namespace FakePeppino
             CopyFields();
             AssignMissing();
 
+            On.HeroController.CanWallJump += DisableWallJump;
+            On.HeroController.CanWallSlide += DisableWallSlide;
             On.PlayMakerFSM.Awake += OnPFSMAwake;
         }
 
         private void OnDestroy()
         {
+            On.HeroController.CanWallJump -= DisableWallJump;
+            On.HeroController.CanWallSlide -= DisableWallSlide;
             On.PlayMakerFSM.Awake -= OnPFSMAwake;
         }
         
@@ -93,6 +97,10 @@ namespace FakePeppino
                 }
             }
         }
+
+        private bool DisableWallJump(On.HeroController.orig_CanWallJump orig, HeroController self) => false;
+
+        private bool DisableWallSlide(On.HeroController.orig_CanWallSlide orig, HeroController self) => false;
 
         private void OnPFSMAwake(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM fsm)
         {

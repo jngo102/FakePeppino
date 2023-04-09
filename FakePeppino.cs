@@ -136,15 +136,14 @@ namespace FakePeppino
 
             yield return new WaitForSeconds(delay);
 
-            var bsc = UObject.Instantiate(GameObjects["Boss Scene Controller"]);
-            UObject.Destroy(bsc.Child("Dream Entry"));
+            var controller = SceneLoader.SceneController;
+            var bsc = controller.gameObject;
             bsc.SetActive(true);
             var dreamReturn = bsc.LocateMyFSM("Dream Return");
             dreamReturn.GetState("Statue").GetAction<GetPlayerDataString>().storeValue = "GG_Workshop";
             dreamReturn.Fsm.GetFsmString("Entry Gate").Value =
                 "door_dreamReturnGG_GG_Statue_Mage_Knight_GG_Statue_Mage_Knight(Clone)";
             dreamReturn.Fsm.GetFsmString("Return Scene").Value = "GG_Workshop";
-            var controller = bsc.GetComponent<BossSceneController>();
             controller.DreamReturnEvent = "DREAM RETURN";
             controller.bossesDeadWaitTime = 9;
             GameObject transition = UObject.Instantiate(controller.transitionPrefab);

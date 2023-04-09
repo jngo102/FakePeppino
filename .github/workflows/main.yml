@@ -65,7 +65,7 @@ jobs:
         run: |
           certutil -hashfile Output/FakePeppino_Windows.zip SHA256 > out.txt
           $hash=(Get-Content -Path out.txt -TotalCount 2)[-1]
-          echo "name=hash::$hash" >> $GITHUB_OUTPUT
+          echo "hash::$hash" >> $GITHUB_OUTPUT
 
       - name: Get Assembly version
         if: matrix.os.suffix != 'Windows'
@@ -92,10 +92,10 @@ jobs:
             tag_name: ${{ needs.build.outputs.VERSION }}
             release_name: Release v${{ needs.build.outputs.VERSION }}
             body: |
-                "SHA256:
-                 Linux: ${{ needs.build.outputs.HASH_LINUX }}
-                 OSX: ${{ needs.build.outputs.HASH_OSX }}
-                 Windows: ${{ needs.build.outputs.HASH_WINDOWS }}"
+                SHA256:
+                Linux: ${{ needs.build.outputs.HASH_LINUX }}
+                OSX: ${{ needs.build.outputs.HASH_OSX }}
+                Windows: ${{ needs.build.outputs.HASH_WINDOWS }}
             draft: false
             prerelease: false
   upload_assets:

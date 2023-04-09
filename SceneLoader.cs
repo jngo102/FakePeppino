@@ -64,23 +64,36 @@ namespace FakePeppino
 
         private void OnSceneChange(Scene prevScene, Scene nextScene)
         {
-            if (nextScene.name == "FakePeppino")
+            if (nextScene.name == "FakePeppino" || nextScene.name == "Chase" || nextScene.name == "Victory")
             {
-                if (SceneController != null)
-                {
-                    Destroy(SceneController.gameObject);
-                }
-                
                 var bsc = Instantiate(FakePeppino.GameObjects["Boss Scene Controller"]);
                 bsc.SetActive(true);
                 SceneController = bsc.GetComponent<BossSceneController>();
-                StatueCreator.BossLevel = SceneController.BossLevel;
-                var dreamReturn = bsc.LocateMyFSM("Dream Return");
-                Destroy(dreamReturn);
-            }
+                if (nextScene.name == "FakePeppino")
+                {
+                    StatueCreator.BossLevel = SceneController.BossLevel;
+                }
+                else if (nextScene.name == "Chase")
+                {
+                    SceneController.BossLevel = StatueCreator.BossLevel;
+                    Destroy(bsc.Child("Dream Entry"));
 
-            if (nextScene.name == "FakePeppino" || nextScene.name == "Chase" || nextScene.name == "Victory")
-            {
+                    var audioSource = GameObject.Find("Peppino Chaser").GetComponent<AudioSource>();
+                    audioSource.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().FirstOrDefault(group =>
+                        group.name == "Actors" && group.audioMixer.outputAudioMixerGroup.name == "Actors");
+                }
+                else if (nextScene.name == "Victory")
+                {
+                    SceneController.BossLevel = StatueCreator.BossLevel;
+                    Destroy(bsc.Child("Dream Entry"));
+
+                    var audioSource = GameObject.Find("Audio Player Actor").GetComponent<AudioSource>();
+                    audioSource.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().FirstOrDefault(group =>
+                        group.name == "Actors" && group.audioMixer.outputAudioMixerGroup.name == "Actors");
+
+                    StartCoroutine(FakePeppino.Instance.DreamReturnDelayed(9));
+                }
+
                 var rootGOs = nextScene.GetRootGameObjects();
                 foreach (var go in rootGOs)
                 {
@@ -94,22 +107,6 @@ namespace FakePeppino
                         sprRend.material.shader = Shader.Find("Sprites/Default");
                     }
                 }
-            }
-
-            if (nextScene.name == "Chase")
-            {
-                var audioSource = GameObject.Find("Peppino Chaser").GetComponent<AudioSource>();
-                audioSource.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().FirstOrDefault(group =>
-                    group.name == "Actors" && group.audioMixer.outputAudioMixerGroup.name == "Actors");
-            }
-
-            if (nextScene.name == "Victory")
-            {
-                var audioSource = GameObject.Find("Audio Player Actor").GetComponent<AudioSource>();
-                audioSource.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().FirstOrDefault(group =>
-                    group.name == "Actors" && group.audioMixer.outputAudioMixerGroup.name == "Actors");
-
-                StartCoroutine(FakePeppino.Instance.DreamReturnDelayed(9));
             }
         }
 
