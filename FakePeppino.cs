@@ -9,10 +9,11 @@ using HutongGames.PlayMaker.Actions;
 using UnityEngine;
 using Vasi;
 using UObject = UnityEngine.Object;
+using BossStatueFramework;
 
 namespace FakePeppino
 {
-    internal class FakePeppino : Mod, ILocalSettings<LocalSettings>
+    internal class FakePeppino : Mod, IBossMod
     {
         internal static FakePeppino Instance { get; private set; }
         
@@ -20,17 +21,24 @@ namespace FakePeppino
         public static Dictionary<string, GameObject> GameObjects { get; } = new();
         public static Texture2D StatueTex;
 
+        public string BossStatueNameKey => "PEP_NAME";
+        public string BossStatueDescriptionKey => "PEP_DESC";
+
+        public string BossStatueSceneName => "FakePeppino";
+
+        public bool IsSmallStatue => true;
+
+        public Sprite BossStatueSprite => Sprite.Create(StatueTex, new Rect(0, 0, StatueTex.width, StatueTex.height), new Vector2(0.5f, 0.5f));
+
+        public float BossStatueSpriteScale => 2;
+
+        public string BossStatueStatePlayerData => "statueStatePep";
+
         private Dictionary<string, (string, string)> _preloads = new()
         {
             ["Boss Scene Controller"] = ("GG_Hornet_1", "Boss Scene Controller"),
             ["Reference"] = ("GG_Hornet_1", "Boss Holder/Hornet Boss 1"),
         };
-
-        private static LocalSettings _localSettings = new();
-
-        public void OnLoadLocal(LocalSettings settings) => _localSettings = settings;
-
-        public LocalSettings OnSaveLocal() => _localSettings;
 
         public FakePeppino() : base("Fake Peppino") { }
 
@@ -51,23 +59,12 @@ namespace FakePeppino
             LoadAssets();
 
             ModHooks.AfterSavegameLoadHook += AfterSaveGameLoad;
-            ModHooks.GetPlayerVariableHook += GetVariableHook;
             ModHooks.LanguageGetHook += LangGet;
             ModHooks.NewGameHook += AddComponent;
-            ModHooks.SetPlayerVariableHook += SetVariableHook;
         }
 
         private void AfterSaveGameLoad(SaveGameData data) => AddComponent();
 
-        private object GetVariableHook(Type t, string key, object orig)
-        {
-            if (key == "statueStatePep")
-            {
-                return _localSettings.Completion;
-            }
-
-            return orig;
-        }
 
         private string LangGet(string key, string sheetTitle, string orig)
         {
@@ -89,18 +86,7 @@ namespace FakePeppino
 
         private void AddComponent()
         {
-            GameManager.instance.gameObject.AddComponent<StatueCreator>();
             GameManager.instance.gameObject.AddComponent<SceneLoader>();
-        }
-
-        private object SetVariableHook(Type t, string key, object obj)
-        {
-            if (key == "statueStatePep")
-            {
-                _localSettings.Completion= (BossStatue.Completion)obj;
-            }
-
-            return obj;
         }
 
         private void LoadAssets()
@@ -132,8 +118,6 @@ namespace FakePeppino
 
         internal IEnumerator DreamReturnDelayed(float delay)
         {
-            StatueCreator.WonFight = true;
-
             yield return new WaitForSeconds(delay);
 
             var controller = SceneLoader.SceneController;
@@ -156,18 +140,8 @@ namespace FakePeppino
         private void Unload()
         {
             ModHooks.AfterSavegameLoadHook -= AfterSaveGameLoad;
-            ModHooks.GetPlayerVariableHook -= GetVariableHook;
             ModHooks.LanguageGetHook -= LangGet;
-            ModHooks.SetPlayerVariableHook -= SetVariableHook;
             ModHooks.NewGameHook -= AddComponent;
-            
-            var statueCreator = GameManager.instance?.gameObject.GetComponent<StatueCreator>();
-            if (statueCreator == null)
-            {
-                return;
-            }
-
-            UObject.Destroy(statueCreator);
         }
     }
 }

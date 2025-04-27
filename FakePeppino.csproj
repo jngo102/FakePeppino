@@ -331,6 +331,9 @@
     <Reference Include="Vasi">
       <HintPath>$(LocalRefs)/Mods/Vasi/Vasi.dll</HintPath>
     </Reference>
+    <Reference Include="BossStatueFramework">
+      <HintPath>$(LocalRefs)/Mods/BossStatueFramework/BossStatueFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

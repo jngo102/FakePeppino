@@ -71,11 +71,11 @@ namespace FakePeppino
                 SceneController = bsc.GetComponent<BossSceneController>();
                 if (nextScene.name == "FakePeppino")
                 {
-                    StatueCreator.BossLevel = SceneController.BossLevel;
+                    // StatueCreator.BossLevel = SceneController.BossLevel;
                 }
                 else if (nextScene.name == "Chase")
                 {
-                    SceneController.BossLevel = StatueCreator.BossLevel;
+                    // SceneController.BossLevel = StatueCreator.BossLevel;
                     Destroy(bsc.Child("Dream Entry"));
 
                     var audioSource = GameObject.Find("Peppino Chaser").GetComponent<AudioSource>();
@@ -84,7 +84,7 @@ namespace FakePeppino
                 }
                 else if (nextScene.name == "Victory")
                 {
-                    SceneController.BossLevel = StatueCreator.BossLevel;
+                    // SceneController.BossLevel = StatueCreator.BossLevel;
                     Destroy(bsc.Child("Dream Entry"));
 
                     var audioSource = GameObject.Find("Audio Player Actor").GetComponent<AudioSource>();
