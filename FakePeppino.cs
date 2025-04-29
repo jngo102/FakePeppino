@@ -13,7 +13,7 @@ using BossStatueFramework;
 
 namespace FakePeppino
 {
-    internal class FakePeppino : Mod, IBossMod
+    internal class FakePeppino : Mod, IBossStatueMod
     {
         internal static FakePeppino Instance { get; private set; }
         
@@ -21,18 +21,32 @@ namespace FakePeppino
         public static Dictionary<string, GameObject> GameObjects { get; } = new();
         public static Texture2D StatueTex;
 
-        public string BossStatueNameKey => "PEP_NAME";
-        public string BossStatueDescriptionKey => "PEP_DESC";
+        public string NameKey => "PEP_NAME";
+        public string DescriptionKey => "PEP_DESC";
 
-        public string BossStatueSceneName => "FakePeppino";
+        public string SceneName => "FakePeppino";
 
-        public bool IsSmallStatue => true;
+        public PlinthType PlinthType => PlinthType.Medium;
 
-        public Sprite BossStatueSprite => Sprite.Create(StatueTex, new Rect(0, 0, StatueTex.width, StatueTex.height), new Vector2(0.5f, 0.5f));
+        public Sprite Sprite => Sprite.Create(StatueTex, new Rect(0, 0, StatueTex.width, StatueTex.height), new Vector2(0.5f, 0.5f));
 
-        public float BossStatueSpriteScale => 2;
+        public float SpriteScale => 2;
 
-        public string BossStatueStatePlayerData => "statueStatePep";
+        public string PlayerData => "statueStatePep";
+
+        public AltSwitchType AltType => AltSwitchType.None;
+
+        public string AltNameKey => "";
+
+        public string AltDescriptionKey => "";
+
+        public string AltSceneName => "GG_Hollow_Knight";
+
+        public string AltPlayerData => "";
+
+        public Sprite AltSprite => null;
+
+        public float AltSpriteScale => 0;
 
         private Dictionary<string, (string, string)> _preloads = new()
         {

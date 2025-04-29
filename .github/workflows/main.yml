@@ -20,31 +20,21 @@ jobs:
       HASH_WINDOWS: ${{ steps.get_hash_windows.outputs.hash }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Setup HK
         uses: BadMagic100/setup-hk@v1
         with:
             apiPath: References/
             dependencyFilePath: ModDependencies.txt
-
-      - name: Setup MSBuild Linux
-        if: matrix.os.suffix == 'Linux'
-        run: |
-          sudo apt-get install -y nuget mono-devel
-
-      - name: Setup MSBuild Windows
-        if: matrix.os.suffix == 'Windows'
-        uses: microsoft/setup-msbuild@v1
-
-      - name: Setup MSBuild OSX
-        if: matrix.os.suffix == 'OSX'
-        run: |
-          brew install --overwrite --dry-run nuget
-          brew install --overwrite --dry-run mono
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+            dotnet-version: "8"
 
       - name: Restore packages
-        run: nuget restore FakePeppino.csproj
+        run: dotnet restore FakePeppino.csproj
 
       - name: Build project
         run: dotnet build --configuration Release
@@ -65,7 +55,7 @@ jobs:
         run: |
           certutil -hashfile Output/FakePeppino_Windows.zip SHA256 > out.txt
           $hash=(Get-Content -Path out.txt -TotalCount 2)[-1]
-          echo "hash::$hash" >> $GITHUB_OUTPUT
+          echo "hash=$hash" >> $GITHUB_OUTPUT
 
       - name: Get Assembly version
         if: matrix.os.suffix != 'Windows'
@@ -73,51 +63,41 @@ jobs:
         run: echo "version=$(cat < Version.txt)" > $GITHUB_OUTPUT
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: FakePeppino_${{ matrix.os.suffix }}
           path: Output/FakePeppino_${{ matrix.os.suffix }}.zip
   create_release:
     needs: build
     runs-on: ubuntu-latest
-    outputs:
-     UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
     steps:
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
         with:
-            tag_name: ${{ needs.build.outputs.VERSION }}
-            release_name: Release v${{ needs.build.outputs.VERSION }}
-            body: |
-                SHA256:
-                Linux: ${{ needs.build.outputs.HASH_LINUX }}
-                OSX: ${{ needs.build.outputs.HASH_OSX }}
-                Windows: ${{ needs.build.outputs.HASH_WINDOWS }}
-            draft: false
-            prerelease: false
-  upload_assets:
-    needs: create_release
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: [Linux, OSX, Windows]
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: FakePeppino_${{ matrix.os }}
+          name: FakePeppino_Linux
           path: ./
 
-      - name: Upload release asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
         with:
-          upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }}
-          asset_path: FakePeppino_${{ matrix.os }}.zip
-          asset_name: FakePeppino_${{ matrix.os }}.zip
-          asset_content_type: application/zip
+          name: FakePeppino_OSX
+          path: ./
+      
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: FakePeppino_Windows
+          path: ./
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: Output/FakePeppino_*.zip
+          name: Release v${{ needs.build.outputs.VERSION }}"
+          body: |
+            ## SHA256: 
+            **Linux**: ${{ needs.build.outputs.HASH_LINUX }}
+            **macOS**: ${{ needs.build.outputs.HASH_OSX }}
+            **Windows**: ${{ needs.build.outputs.HASH_WINDOWS }}
+          tag: ${{ needs.build.outputs.VERSION }}
       
