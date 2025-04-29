@@ -93,7 +93,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: Output/FakePeppino_*.zip
-          name: Release v${{ needs.build.outputs.VERSION }}"
+          name: Release v${{ needs.build.outputs.VERSION }}
           body: |
             ## SHA256: 
             **Linux**: ${{ needs.build.outputs.HASH_LINUX }}

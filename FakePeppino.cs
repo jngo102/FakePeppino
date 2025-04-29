@@ -134,21 +134,21 @@ namespace FakePeppino
         {
             yield return new WaitForSeconds(delay);
 
-            var controller = SceneLoader.SceneController;
-            var bsc = controller.gameObject;
-            bsc.SetActive(true);
-            var dreamReturn = bsc.LocateMyFSM("Dream Return");
+            var bsc = BossSceneController.Instance;
+            var bscObj = bsc.gameObject;
+            bscObj.SetActive(true);
+            var dreamReturn = bscObj.LocateMyFSM("Dream Return");
             dreamReturn.GetState("Statue").GetAction<GetPlayerDataString>().storeValue = "GG_Workshop";
             dreamReturn.Fsm.GetFsmString("Entry Gate").Value =
-                "door_dreamReturnGG_GG_Statue_Mage_Knight_GG_Statue_Mage_Knight(Clone)";
+                $"door_dreamReturnGG_GG_Statue_{nameof(FakePeppino)}";
             dreamReturn.Fsm.GetFsmString("Return Scene").Value = "GG_Workshop";
-            controller.DreamReturnEvent = "DREAM RETURN";
-            controller.bossesDeadWaitTime = 9;
-            GameObject transition = UObject.Instantiate(controller.transitionPrefab);
+            bsc.DreamReturnEvent = "DREAM RETURN";
+            bsc.bossesDeadWaitTime = delay;
+            GameObject transition = UObject.Instantiate(bsc.transitionPrefab);
             PlayMakerFSM transitionsFSM = transition.LocateMyFSM("Transitions");
             transitionsFSM.SetState("Out Statue");
             yield return new WaitForSeconds(1);
-            controller.DoDreamReturn();
+            bsc.DoDreamReturn();
         }
 
         private void Unload()

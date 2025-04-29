@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using HutongGames.PlayMaker.Actions;
 using Modding.Utils;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -13,7 +12,8 @@ namespace FakePeppino
 {
     internal class SceneLoader : MonoBehaviour
     {
-        internal static BossSceneController SceneController;
+        private int _bossLevel;
+        private int _savedBossLevel;
 
         private void Awake()
         {
@@ -66,12 +66,16 @@ namespace FakePeppino
         {
             if (nextScene.name == "FakePeppino" || nextScene.name == "Chase" || nextScene.name == "Victory")
             {
-                var bsc = Instantiate(FakePeppino.GameObjects["Boss Scene Controller"]);
-                bsc.SetActive(true);
-                SceneController = bsc.GetComponent<BossSceneController>();
-                if (nextScene.name == "Chase")
+                var bscObj = Instantiate(FakePeppino.GameObjects["Boss Scene Controller"]);
+                bscObj.SetActive(true);
+                var bsc = bscObj.GetComponent<BossSceneController>();
+                if (nextScene.name == "FakePeppino") {
+                    _savedBossLevel = bsc.BossLevel;
+                } else if (nextScene.name == "Chase")
                 {
-                    Destroy(bsc.Child("Dream Entry"));
+                    _bossLevel = _savedBossLevel;
+
+                    Destroy(bscObj.Child("Dream Entry"));
 
                     var audioSource = GameObject.Find("Peppino Chaser").GetComponent<AudioSource>();
                     audioSource.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().FirstOrDefault(group =>
@@ -79,11 +83,34 @@ namespace FakePeppino
                 }
                 else if (nextScene.name == "Victory")
                 {
-                    Destroy(bsc.Child("Dream Entry"));
+                    _bossLevel = _savedBossLevel;
+
+                    Destroy(bscObj.Child("Dream Entry"));
 
                     var audioSource = GameObject.Find("Audio Player Actor").GetComponent<AudioSource>();
                     audioSource.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().FirstOrDefault(group =>
                         group.name == "Actors" && group.audioMixer.outputAudioMixerGroup.name == "Actors");
+
+                    var pd = PlayerData.instance;
+                    var completion = pd.GetVariable<BossStatue.Completion>(FakePeppino.Instance.PlayerData);
+                    switch (_bossLevel)
+                    {
+                        case 0:
+                            completion.completedTier1 = true;
+                            break;
+                        case 1:
+                            completion.completedTier2 = true;
+                            break;
+                        case 2:
+                            completion.completedTier3 = true;
+                            break;
+                    }
+                    if (completion.completedTier1 && completion.completedTier2 && !completion.completedTier3)
+                    {
+                        completion.seenTier3Unlock = true;
+                    }
+
+                    pd.SetVariable(FakePeppino.Instance.PlayerData, completion);
 
                     StartCoroutine(FakePeppino.Instance.DreamReturnDelayed(9));
                 }
@@ -100,6 +127,18 @@ namespace FakePeppino
                     {
                         sprRend.material.shader = Shader.Find("Sprites/Default");
                     }
+                }
+            }
+            else if (nextScene.name == "GG_Workshop")
+            {
+                if (prevScene.name == "Victory")
+                {
+                    var pd = PlayerData.instance;
+                    var completion = pd.GetVariable<BossStatue.Completion>(FakePeppino.Instance.PlayerData);
+                    var bs = FindObjectsOfType<BossStatue>().FirstOrDefault(statue => statue.bossDetails.nameKey == "PEP_NAME");
+                    PlayerData.instance.currentBossStatueCompletionKey = bs.statueStatePD;
+                    bs.StatueState = completion;
+                    bs.SetPlaqueState(bs.StatueState, bs.regularPlaque, bs.statueStatePD);
                 }
             }
         }
