@@ -1,2 +1,2 @@
-Boss Statue Framework
+BossStatueFramework
 Vasi
