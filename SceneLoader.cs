@@ -69,11 +69,13 @@ namespace FakePeppino
                 var bscObj = Instantiate(FakePeppino.GameObjects["Boss Scene Controller"]);
                 bscObj.SetActive(true);
                 var bsc = bscObj.GetComponent<BossSceneController>();
-                if (nextScene.name == "FakePeppino") {
-                    _savedBossLevel = bsc.BossLevel;
-                } else if (nextScene.name == "Chase")
+                if (nextScene.name == "FakePeppino") 
                 {
-                    _bossLevel = _savedBossLevel;
+                    _savedBossLevel = bsc.BossLevel;
+                } 
+                else if (nextScene.name == "Chase")
+                {
+                    bsc.BossLevel = _bossLevel = _savedBossLevel;
 
                     Destroy(bscObj.Child("Dream Entry"));
 
@@ -83,8 +85,6 @@ namespace FakePeppino
                 }
                 else if (nextScene.name == "Victory")
                 {
-                    _bossLevel = _savedBossLevel;
-
                     Destroy(bscObj.Child("Dream Entry"));
 
                     var audioSource = GameObject.Find("Audio Player Actor").GetComponent<AudioSource>();
@@ -113,6 +113,8 @@ namespace FakePeppino
                     pd.SetVariable(FakePeppino.Instance.PlayerData, completion);
 
                     StartCoroutine(FakePeppino.Instance.DreamReturnDelayed(9));
+
+                    _savedBossLevel = 0;
                 }
 
                 var rootGOs = nextScene.GetRootGameObjects();
